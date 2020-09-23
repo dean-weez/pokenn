@@ -30,18 +30,13 @@ class Scraper:
         soup = BeautifulSoup(response.text, "html.parser")
 
         name = soup.find('h1').string
-        types = [t.string for t in soup.find_all(class_='type-icon')]
-        type1 = types[0]
-        if len(types) > 1:
-            type2 = types[1]
-        else:
-            type2 = None
+        types = '|'.join([t.string for t in soup.find_all(class_='type-icon')])
         img_pat = 'https://img.pokemondb.net/artwork/large/'
         img_url = img_pat + name.lower() + '.jpg'
         #img_url = soup.find('a', href=re.compile(img_pat)).get('href')
         img_data = requests.get(img_url).content
         
-        return {'name': name, 'type1': type1, 'type2': type2, 'img': img_data}
+        return {'name': name, 'types': types, 'img': img_data}
         
 
     def getPokemonURLList(self):
@@ -66,7 +61,7 @@ class Scraper:
             img_name = data['name'] + '.jpg'
             with open(self.imgpath / img_name, 'wb') as handler:
                 handler.write(data['img'])
-            writer.writerow([data['name'], data['type1'], data['type2']])
+            writer.writerow([data['name'], data['types'])
         f.close()
     
 
