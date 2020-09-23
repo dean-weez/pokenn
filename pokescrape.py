@@ -25,15 +25,15 @@ class Scraper:
 
     def getPokemonInfo(self, pokemon_url):
         """Get name, types, and image of pokemon"""
-        # TODO: Get additional pokemon information and images
         response = requests.get(pokemon_url)
         soup = BeautifulSoup(response.text, "html.parser")
 
         name = soup.find('h1').string
-        types = '|'.join([t.string for t in soup.find_all(class_='type-icon')])
-        img_pat = 'https://img.pokemondb.net/artwork/large/'
-        img_url = img_pat + name.lower() + '.jpg'
-        #img_url = soup.find('a', href=re.compile(img_pat)).get('href')
+        vitals = soup.find('table', class_='vitals-table')
+        type_list = [t.string for t in vitals.find_all(class_='type-icon')]
+        types = '|'.join(type_list)
+        img_meta = soup.find('meta', property='og:image')
+        img_url = img_meta['content']
         img_data = requests.get(img_url).content
         
         return {'name': name, 'types': types, 'img': img_data}
@@ -61,7 +61,7 @@ class Scraper:
             img_name = data['name'] + '.jpg'
             with open(self.imgpath / img_name, 'wb') as handler:
                 handler.write(data['img'])
-            writer.writerow([data['name'], data['types'])
+            writer.writerow([data['name'], data['types']])
         f.close()
     
 
