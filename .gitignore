@@ -1,0 +1,4 @@
+images/*
+data.csv
+.DS_Store
+.python-version
